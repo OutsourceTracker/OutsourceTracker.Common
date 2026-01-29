@@ -1,0 +1,9 @@
+# GitVersion.yml
+mode: Mainline          # or GitFlow if you use that workflow
+tag-prefix: '[vV]?'     # matches v1.0.0 or 1.0.0
+major-version-bump-message: '\+semver:\s?(breaking|major)'
+minor-version-bump-message: '\+semver:\s?(feature|minor)'
+patch-version-bump-message: '\+semver:\s?(fix|patch)'
+branches: {}
+ignore:
+  sha: []
