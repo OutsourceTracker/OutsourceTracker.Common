@@ -1,0 +1,56 @@
+# OutsourceTracker.Common
+
+Shared interfaces, enums, DTOs, and domain models for the **OutsourceTracker** ecosystem.
+
+## Overview
+
+**OutsourceTracker** is a set of tools designed to help independent (outsource) drivers working with **J.B. Hunt** better manage and track:
+
+- Loads / dispatched work
+- Gross pay, deductions, and net earnings
+- Trailer assignments and utilization
+- Settlement statements and payment history
+- Miles, deadhead, and detention tracking
+- Expenses, fuel receipts, and tax-related records
+- Compliance & paperwork reminders
+
+This **OutsourceTracker.Common** package contains the **core domain models**, **interfaces**, **enums**, **DTOs**, and **shared constants**
+
+Keeping these types in a separate project ensures consistency, reduces duplication, and makes cross-project refactoring safer.
+
+## Key Features / Contents
+
+- **Interfaces** for major services & repositories
+  - `IWorkService`, `IPaymentCalculator`, `ITrailerRepository`, `IUserContext`
+- **Domain Models** & **Value Objects**
+  - `Load`, `Settlement`, `Trailer`, `Driver`, `PayItem`, `Deduction`, `Expense`
+- **DTOs** for API communication
+  - `LoadSummaryDto`, `SettlementPreviewDto`, `PayPeriodSummaryDto`, etc.
+- **Enums** & **Constants**
+  - `LoadStatus`, `PayItemType`, `DeductionCategory`, `TrailerType`, `JbhDivision`
+- **Calculation helpers** (pure functions / small utilities)
+  - Mileage & pay rate calculations
+  - Detention / layover logic
+  - Fuel surcharge helpers
+- **Custom exceptions**
+  - `InvalidSettlementStateException`, `RateNotFoundException`, etc.
+- **Attributes** & **annotations** used across projects
+  - `[TrackChanges]`, `[SensitiveData]`, etc.
+
+## Project Goals
+
+- Single source of truth for domain language
+- Zero external dependencies (or very minimal)
+- High testability (most logic is pure / side-effect free)
+- Semantic versioning compatibility
+- Backward compatibility priority for driver-facing data shapes
+
+## Installation
+
+This package is typically consumed via private NuGet feed or project reference.
+
+```xml
+<!-- In your .csproj -->
+<ItemGroup>
+  <PackageReference Include="OutsourceTracker.Common" Version="1.x.x" />
+</ItemGroup>
