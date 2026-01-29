@@ -36,11 +36,13 @@ jobs:
       - name: Determine version using GitVersion
         id: gitversion
         run: |
-          GITVERSION_JSON=$(dotnet-gitversion /output json)
-
-          echo "semver=$(echo "$GITVERSION_JSON" | jq -r .SemVer)" >> $GITHUB_OUTPUT
-          echo "nugetversion=$(echo "$GITVERSION_JSON" | jq -r .NuGetVersionV2)" >> $GITHUB_OUTPUT
-          echo "assemblyversion=$(echo "$GITVERSION_JSON" | jq -r .AssemblySemVer)" >> $GITHUB_OUTPUT
+          echo "Running GitVersion with diagnostic logging..."
+          GITVERSION_JSON=$(dotnet-gitversion /output json /verbosity diagnostic 2>&1) || true   # capture errors too
+          echo "Raw GitVersion output:"
+          echo "$GITVERSION_JSON"
+          echo "semver=$(echo "$GITVERSION_JSON" | jq -r .SemVer 2>/dev/null || echo 'PARSE_FAILED')" >> $GITHUB_OUTPUT
+          echo "nugetversion=$(echo "$GITVERSION_JSON" | jq -r .NuGetVersionV2 2>/dev/null || echo 'PARSE_FAILED')" >> $GITHUB_OUTPUT
+          echo "assemblyversion=$(echo "$GITVERSION_JSON" | jq -r .AssemblySemVer 2>/dev/null || echo 'PARSE_FAILED')" >> $GITHUB_OUTPUT
 
       - name: Display calculated version
         run: |
