@@ -54,3 +54,4 @@ This package is typically consumed via private NuGet feed or project reference.
 <ItemGroup>
   <PackageReference Include="OutsourceTracker.Common" Version="1.x.x" />
 </ItemGroup>
+```
