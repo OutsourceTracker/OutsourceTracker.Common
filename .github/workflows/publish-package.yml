@@ -1,0 +1,94 @@
+name: Build & Publish NuGet to GitHub Packages
+
+# Trigger the workflow on pushes to main (or tags if you prefer semantic versioning)
+on:
+  push:
+    branches:
+      - master
+  tags:
+    - 'v*'
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  packages: write
+  contents: read
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install GitVersion.Tool
+        run: dotnet tool install --global GitVersion.Tool
+        
+      - name: Restore .NET tools
+        run: dotnet tool restore
+        
+      - name: Determine Version with GitVersion
+        id: gitversion
+        run: |
+          dotnet-gitversion \
+            --output json \
+            --showconfig \
+          > gitversion.json
+          
+          dotnet tool run gitversion \
+            --json gitversion.json \
+            --format json \
+            | jq -r '
+              "semver=\(.SemVer)",
+              "nugetversion=\(.NuGetVersionV2)",
+              "assemblyversion=\(.AssemblySemVer)",
+              "majorminorpatch=\(.MajorMinorPatch)"
+              ' >> $GITHUB_OUTPUT
+      - name: Show Calculated version
+        run: |
+          echo "Calculated SemVer: ${{ steps.gitversion.outputs.semver }}"
+          echo "NuGet Version: ${{ steps.gitversion.outputs.nugetversion }}"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Pack OutsourceTracker.Common
+        run: |
+          dotnet pack \
+            src/OutsourceTracker.Common.csproj \
+            --no-build \
+            --configuration Release \
+            -p:Version=${{ steps.gitversion.outputs.nugetversion }} \
+            -p:PackageVersion=${{ steps.gitversion.outputs.nugetversion }} \
+            --output ./artifacts/packages
+
+      - name: Publish to GitHub Packages
+        run: |
+          for pkg in ./artifacts/packages/*.nupkg; do
+            dotnet nuget push "$pkg" \
+              --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json \
+              --api-key ${{ secrets.GITHUB_TOKEN }} \
+              --skip-duplicate
+          done
+
+      # (Optional) If you want to upload artifacts for debugging
+      - name: Upload NuGet artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: ./artifacts/packages/*.nupkg
+          if-no-files-found: warn
