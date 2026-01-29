@@ -1,9 +1,20 @@
 # GitVersion.yml
-mode: Mainline          # or GitFlow if you use that workflow
-tag-prefix: '[vV]?'     # matches v1.0.0 or 1.0.0
-major-version-bump-message: '\+semver:\s?(breaking|major)'
-minor-version-bump-message: '\+semver:\s?(feature|minor)'
-patch-version-bump-message: '\+semver:\s?(fix|patch)'
-branches: {}
-ignore:
-  sha: []
+mode: ContinuousDeployment
+
+# Optional: customize pre-release tags if you want (e.g. for feature branches)
+branches:
+  master:
+    regex: ^master$
+    tag: ''
+    increment: Patch
+    is-release-branch: true
+
+  # Optional: for pull requests or other branches
+  pull-requests:
+    regex: ^pull\/[0-9]+\/merge$
+    tag: PR
+    increment: Patch
+    prevent-increment-of-merged-branch-version: true
+
+# Optional: tag prefix (matches v1.0.0 or 1.0.0)
+tag-prefix: '[vV]?'
