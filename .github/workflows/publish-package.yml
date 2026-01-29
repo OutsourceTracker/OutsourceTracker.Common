@@ -1,4 +1,4 @@
-name: Build & Publish NuGet to GitHub Packages
+name: Build & Publish OutsourceTracker.Common to GitHub Packages
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -28,32 +28,30 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'  # adjust to match your project (e.g. '9.0.x' if on .NET 9)
 
       - name: Install GitVersion.Tool
         run: dotnet tool install --global GitVersion.Tool
 
-      - name: Determine Version with GitVersion
+      - name: Determine version using GitVersion
         id: gitversion
         run: |
-          # Run GitVersion and capture JSON output directly
-          dotnet-gitversion --output json > gitversion.json
+          GITVERSION_JSON=$(dotnet-gitversion /output json)
 
-          echo "semver=$(jq -r .SemVer gitversion.json)" >> $GITHUB_OUTPUT
-          echo "nugetversion=$(jq -r .NuGetVersionV2 gitversion.json)" >> $GITHUB_OUTPUT
-          echo "assemblyversion=$(jq -r .AssemblySemVer gitversion.json)" >> $GITHUB_OUTPUT
-          echo "majorminorpatch=$(jq -r .MajorMinorPatch gitversion.json)" >> $GITHUB_OUTPUT
+          echo "semver=$(echo "$GITVERSION_JSON" | jq -r .SemVer)" >> $GITHUB_OUTPUT
+          echo "nugetversion=$(echo "$GITVERSION_JSON" | jq -r .NuGetVersionV2)" >> $GITHUB_OUTPUT
+          echo "assemblyversion=$(echo "$GITVERSION_JSON" | jq -r .AssemblySemVer)" >> $GITHUB_OUTPUT
 
-      - name: Show calculated version
+      - name: Display calculated version
         run: |
-          echo "SemVer:          ${{ steps.gitversion.outputs.semver }}"
-          echo "NuGet version:    ${{ steps.gitversion.outputs.nugetversion }}"
-          echo "Assembly version: ${{ steps.gitversion.outputs.assemblyversion }}"
+          echo "SemVer:           ${{ steps.gitversion.outputs.semver }}"
+          echo "NuGet version:     ${{ steps.gitversion.outputs.nugetversion }}"
+          echo "Assembly version:  ${{ steps.gitversion.outputs.assemblyversion }}"
 
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build
+      - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
       - name: Pack OutsourceTracker.Common
@@ -66,17 +64,18 @@ jobs:
             -p:PackageVersion=${{ steps.gitversion.outputs.nugetversion }} \
             --output ./artifacts/packages
 
-      - name: Publish to GitHub Packages
+      - name: Publish package to GitHub Packages
         if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v')
         run: |
           for pkg in ./artifacts/packages/*.nupkg; do
+            echo "Pushing $pkg ..."
             dotnet nuget push "$pkg" \
               --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
               --api-key ${{ secrets.GITHUB_TOKEN }} \
               --skip-duplicate
           done
 
-      - name: Upload NuGet artifacts (for debugging)
+      - name: Upload packages as artifact (debugging)
         if: always()
         uses: actions/upload-artifact@v4
         with:
