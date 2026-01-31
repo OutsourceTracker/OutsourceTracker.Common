@@ -8,14 +8,14 @@ public static class ServiceExtensions
 {
     private static readonly ConcurrentDictionary<(Type ModelType, string PropertyName), Action<object, object>> PropertySetters = new();
 
-    public static async Task<TModel> UpdateModel<TID, TModel>(this IModelService<TID, TModel> modelService, TID modelId, object dto, CancellationToken cancellationToken = default, bool skipNullValues = true) where TModel : IModel<TID>
+    public static async Task<TModel> UpdateModel<TID, TModel, TDtoModel>(this IModelService<TID, TModel, TDtoModel> modelService, TID modelId, TModel model, object dto, CancellationToken cancellationToken = default, bool skipNullValues = true) where TModel : IModel<TID> where TDtoModel : class
     {
         ArgumentNullException.ThrowIfNull(dto, nameof(dto));
 
-        TModel databaseObject = await modelService.UpdateModel(modelId, model =>
+        TModel databaseObject = await modelService.UpdateModel(modelId, model, dtoClass =>
         {
             bool changed = false;
-            Type modelType = typeof(TModel);
+            Type modelType = dtoClass?.GetType() ?? typeof(TDtoModel);
             Type dtoType = dto.GetType();
 
 
@@ -49,13 +49,13 @@ public static class ServiceExtensions
                     continue;
                 }
 
-                object? currentValue = modelProp.GetValue(model);
+                object? currentValue = modelProp.GetValue(dtoClass);
 
                 if (!object.Equals(currentValue, dtoValue))
                 {
                     // Use cached fast setter
                     var setter = GetPropertySetter(modelType, modelProp.Name);
-                    setter(model, dtoValue!);
+                    setter(dtoClass, dtoValue!);
                     changed = true;
                 }
             }
@@ -66,10 +66,10 @@ public static class ServiceExtensions
         return databaseObject;
     }
 
-    public static async Task<TModel> AddModel<TID, TModel>(this IModelService<TID, TModel> modelService, object dto, CancellationToken cancellationToken = default) where TModel : IModel<TID>
+    public static async Task<TModel?> AddModel<TID, TModel, TDtoModel>(this IModelService<TID, TModel, TDtoModel> modelService, object dto, CancellationToken cancellationToken = default) where TModel : IModel<TID> where TDtoModel : class
     {
         ArgumentNullException.ThrowIfNull(dto, nameof(dto));
-        TModel databaseObject = await modelService.AddModel(model =>
+        TModel? databaseObject = await modelService.AddModel(model =>
         {
             Type modelType = typeof(TModel);
             Type dtoType = dto.GetType();
