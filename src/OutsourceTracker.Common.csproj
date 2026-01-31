@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Common", ""))</RootNamespace>
-    <ApplicationIcon>OutSource.ico</ApplicationIcon>
+    <ApplicationIcon>outsource.ico</ApplicationIcon>
     <Title>OutsourceTacker Common</Title>
     <Authors>Austin Vandersluis</Authors>
     <Description>Common classes, utilities, interfaces, and shared models for the OutsourceTracker application — a platform for outsourcing work management and trailer/asset tracking in logistics and transportation.</Description>
