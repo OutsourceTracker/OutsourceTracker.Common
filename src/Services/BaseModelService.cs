@@ -14,43 +14,51 @@ public abstract class BaseModelService<TModel, TDtoModel> : IModelService<Guid, 
         Log = logger;
     }
 
-    public async Task<TModel> AddModel(Action<TModel> modelCreateCallback, CancellationToken cancellationToken = default)
+    public async Task<TModel?> AddModel(Action<TDtoModel> modelCreateCallback, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(modelCreateCallback, nameof(modelCreateCallback));
         DateTimeOffset now = DateTimeOffset.Now;
         Guid id = Guid.CreateVersion7(now);
+        TDtoModel dto = new();
         TModel model = new TModel()
         {
             Id = id
         };
-        modelCreateCallback(model);
-        model.Id = id;
-        NormalizeModel(model);
-        await AddModel(model, cancellationToken);
-        Log.LogInformation("Successfully added {MODEL_NAME} {MODEL_VALUE}", ModelName, model);
-        return model;
+        modelCreateCallback(dto);
+        if (ProcessChanges(dto, model))
+        {
+            NormalizeModel(model);
+            await AddModel(model, cancellationToken);
+            Log.LogInformation("Successfully added {MODEL_NAME} {MODEL_VALUE}", ModelName, model);
+            return model;
+        }
+        Log.LogWarning("No changes were made when attempting to add new {MODEL_NAME}, skipping database insert", ModelName);
+        return default;
     }
 
-    public async Task<TModel> UpdateModel(Guid id, Func<TModel, bool> modelUpdateCallback, CancellationToken cancellationToken = default)
+    public async Task<TModel> UpdateModel(Guid id, TModel model, Func<TDtoModel, bool> modelUpdateCallback, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(modelUpdateCallback, nameof(modelUpdateCallback));
-        TModel? model = await GetModel(id, cancellationToken);
 
-        if (model == null)
+        if (model == null || model.Id != id)
         {
-            Log.LogError("Attempted to update {MODEL_NAME} {ID} but entry doesn't exist", ModelName, id);
-            throw new KeyNotFoundException($"{ModelName} with ID {id} was not found.");
+            Log.LogError("The provided {MODEL_NAME} ID does not match the {MODEL_NAME}'s ID.", ModelName);
+            throw new ArgumentException($"The provided {ModelName} ID does not match the {ModelName}'s ID.", nameof(id));
         }
 
-        Guid originalId = model.Id;
-        bool result = modelUpdateCallback(model);
+        TDtoModel dto = new();
+        CopyToDto(model, dto);
+        bool result = modelUpdateCallback(dto);
 
-        if (result)
+        if (result && ProcessChanges(dto, model))
         {
-            model.Id = originalId;
             NormalizeModel(model);
             model = await UpdateModel(model, cancellationToken);
             Log.LogInformation("Successfully updated {MODEL_NAME} {MODEL} in the database", ModelName, model);
+        }
+        else
+        {
+            Log.LogInformation("No changes were made when attempting to update {MODEL_NAME} {MODEL}, skipping database update", ModelName, model);
         }
 
         return model;
