@@ -5,11 +5,39 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Common", ""))</RootNamespace>
+    <ApplicationIcon>OutSource.ico</ApplicationIcon>
+    <Title>OutsourceTacker Common</Title>
+    <Authors>Austin Vandersluis</Authors>
+    <Description>Common classes, utilities, interfaces, and shared models for the OutsourceTracker application — a platform for outsourcing work management and trailer/asset tracking in logistics and transportation.</Description>
+    <Copyright>Copyright © $([System.DateTime]::Now.Year) $(Authors)</Copyright>
+    <PackageProjectUrl>https://github.com/OutsourceTracker/</PackageProjectUrl>
+    <PackageIcon>package_icon.jpg</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/OutsourceTracker/OutsourceTracker.Common</RepositoryUrl>
+    <PackageTags>logistics;trailer-tracking;outsourcing;work-management;transportation;common;utilities;interfaces</PackageTags>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="outsource.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="10.0.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="package_icon.jpg">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
