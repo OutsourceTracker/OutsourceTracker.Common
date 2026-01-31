@@ -2,7 +2,7 @@
 
 namespace OutsourceTracker.Services;
 
-public abstract class BaseModelService<TModel> : IModelService<Guid, TModel> where TModel : IModel<Guid>, new()
+public abstract class BaseModelService<TModel, TDtoModel> : IModelService<Guid, TModel, TDtoModel> where TModel : IModel<Guid>, new() where TDtoModel : class, new()
 {
     protected virtual string ModelName { get; }
 
@@ -80,6 +80,10 @@ public abstract class BaseModelService<TModel> : IModelService<Guid, TModel> whe
     public abstract Task<TModel?> GetModel(Guid id, CancellationToken cancellationToken = default);
 
     protected abstract void NormalizeModel(TModel model);
+
+    protected abstract bool ProcessChanges(TDtoModel dto, TModel model);
+
+    protected abstract bool CopyToDto(TModel model, TDtoModel dto);
 
     #region Database Calls
 
