@@ -1,15 +1,19 @@
-# GitVersion.yml - Trunk-based / ContinuousDeployment for master branch
-
 mode: ContinuousDeployment
-
 branches:
   master:
-    regex: ^master$
-    label: ''                     # ← empty = no pre-release suffix on master
+    regex: ^master$$   |^main   $$
+    mode: ContinuousDeployment
+    tag: ''
     increment: Patch
-    is-release-branch: true
-    prevent-increment:
-      of-merged-branch: true
-
-# Global tag prefix (v1.0.0 or 1.0.0)
-tag-prefix: '[vV]?'
+    prevent-increment-of-merged-branch-version: true
+    track-merge-target: false
+    tracks-release-branches: false
+    is-release-branch: false
+  feature:
+    regex: ^features?/.*$
+    mode: ContinuousDeployment
+    tag: alpha
+    increment: Minor
+    source-branches: ['master']
+ignore:
+  sha: []
