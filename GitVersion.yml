@@ -9,8 +9,8 @@ branches:
     track-merge-target: false
     tracks-release-branches: false
     is-release-branch: false
-  feature:
-    regex: ^features?/.*$
+  develop:
+    regex: ^develop?/.*$
     mode: ContinuousDeployment
     tag: alpha
     increment: Minor
