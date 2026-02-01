@@ -1,0 +1,36 @@
+name: Build & Publish OutsourceTracker.Common to MyGet
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-project:
+    uses: OutsourceTracker/OutsourceTracker.Actions/.github/workflows/build-dotnet.yml@master
+    with:
+      dotnet-version: '10.0.x'
+      project-path: 'src/OutsourceTracker.Common.csproj'
+      publish-blazor: false
+
+  publish-project:
+    needs: build-project
+    uses: OutsourceTracker/OutsourceTracker.Actions/.github/workflows/publish-myget.yml@master
+    with:
+      dotnet-version: '10.0.x'
+      project-path: 'src/OutsourceTracker.Common.csproj'
+      gitversion-semver: ${{ needs.build-project.outputs.gitversion-semver }}
+      gitversion-nugetversion: ${{ needs.build-project.outputs.gitversion-nugetversion }}
+      package-suffix: ''
+    secrets:
+      myget-api-key: ${{ secrets.MYGET_KEY }}
