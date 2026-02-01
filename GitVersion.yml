@@ -1,13 +1,14 @@
-mode: Mainline  # Versions from commit history on master; no GitFlow assumptions
+mode: Mainline
 branches:
   master:
-    regex: ^master$  # Exact match for your branch
+    regex: ^master$
     mode: ContinuousDeployment
-    increment: Patch  # Auto-bump patch on commits; Minor for features if tagged
-    tag: ''  # No pre-release (e.g., 1.0.0)
+    increment: Patch
+    tag: ''
     prevent-increment-of-merged-branch-version: true
-    is-main-branch: true  # Marks as primary for release-able calcs
-  feature:  # Optional for feature branches
+    is-mainline: true
+    pre-release-weight: 55000
+  feature:
     regex: ^feature[s]?/.*$
     mode: ContinuousDeployment
     tag: alpha
