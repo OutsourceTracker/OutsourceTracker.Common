@@ -12,118 +12,26 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read   # No longer need packages:write (that's GitHub Packages specific)
+  contents: read
 
 jobs:
-  build-and-publish:
-    runs-on: ubuntu-latest
+  build:
+    uses: OutsourceTracker/OutsourceTracker.Actions/.github/workflows/build-dotnet.yml@master  # Use a tag for stability
+    with:
+      dotnet-version: '10.0.x'
+      project-path: 'src/OutsourceTracker.Common.csproj'
+      publish-blazor: false
+    # No secrets needed for build unless NuGet private packages
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Full history required for accurate GitVersion calculation
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.0.x'  # Adjust if your project targets a different version
-
-      - name: Install GitVersion.Tool
-        run: dotnet tool install --global GitVersion.Tool
-
-      - name: Determine version using GitVersion
-        id: gitversion
-        run: |
-          echo "Running GitVersion with diagnostic output..."
-          GITVERSION_JSON=$(dotnet-gitversion /output json /verbosity diagnostic 2>&1) || true
-
-          echo "=== Raw GitVersion output ==="
-          echo "$GITVERSION_JSON"
-          echo "============================="
-
-          # Parse safely with fallback
-          if echo "$GITVERSION_JSON" | jq empty >/dev/null 2>&1; then
-            SEMVER=$(echo "$GITVERSION_JSON" | jq -r .SemVer)
-            NUGETVER=$(echo "$GITVERSION_JSON" | jq -r .SemVer)
-            ASMVER=$(echo "$GITVERSION_JSON" | jq -r .AssemblySemVer)
-            echo "GitVersion succeeded → using real values"
-          else
-            echo "GitVersion failed → using fallback version"
-            SEMVER="0.0.0-ci.${{ github.run_number }}"
-            NUGETVER="0.0.0-ci.${{ github.run_number }}"
-            ASMVER="0.0.0.0"
-          fi
-
-          # Force-set outputs
-          echo "semver=$SEMVER" >> $GITHUB_OUTPUT
-          echo "nugetversion=$NUGETVER" >> $GITHUB_OUTPUT
-          echo "assemblyversion=$ASMVER" >> $GITHUB_OUTPUT
-
-          echo "Final calculated versions:"
-          echo "  SemVer:        $SEMVER"
-          echo "  NuGet version: $NUGETVER"
-
-      - name: Display calculated version
-        run: |
-          echo "SemVer:           ${{ steps.gitversion.outputs.semver }}"
-          echo "NuGet version:     ${{ steps.gitversion.outputs.nugetversion }}"
-          echo "Assembly version:  ${{ steps.gitversion.outputs.assemblyversion }}"
-
-      # Uncomment if you have tests
-      # - name: Run tests
-      #   run: dotnet test src/OutsourceTracker.Common.csproj --no-restore --configuration Release
-
-      - name: Restore dependencies
-        run: dotnet restore src/OutsourceTracker.Common.csproj
-
-      - name: Build project
-        run: dotnet build src/OutsourceTracker.Common.csproj --no-restore --configuration Release
-
-      - name: Pack OutsourceTracker.Common
-        run: |
-          # Safety check
-          if [ -z "${{ steps.gitversion.outputs.nugetversion }}" ] || [ "${{ steps.gitversion.outputs.nugetversion }}" = "null" ]; then
-            echo "ERROR: nugetversion is empty or null - cannot pack"
-            exit 1
-          fi
-
-          dotnet pack src/OutsourceTracker.Common.csproj \
-            --no-build \
-            --configuration Release \
-            -p:Version=${{ steps.gitversion.outputs.nugetversion }} \
-            -p:PackageVersion=${{ steps.gitversion.outputs.nugetversion }} \
-            --output ./artifacts/packages
-
-      - name: Publish package to MyGet
-        if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v')
-        env:
-          MYGET_API_KEY: ${{ secrets.MYGET_KEY }}
-        run: |
-          ls -la ./artifacts/packages/ || echo "No packages found"
-
-          if [ -z "$MYGET_API_KEY" ]; then
-            echo "ERROR: MYGET_API_KEY secret is not set!"
-            exit 1
-          fi
-
-          for pkg in ./artifacts/packages/*.nupkg; do
-            if [ -f "$pkg" ]; then
-              echo "Pushing $pkg to MyGet..."
-              dotnet nuget push "$pkg" \
-                --source "https://www.myget.org/F/outsourcetracker/api/v2/package" \
-                --api-key "$MYGET_API_KEY" \
-                --skip-duplicate
-            else
-              echo "No .nupkg files found to publish"
-              exit 1
-            fi
-          done
-
-      - name: Upload packages as artifact (debugging)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: nuget-packages
-          path: ./artifacts/packages/*.nupkg
-          if-no-files-found: warn
+  publish-myget:
+    needs: build
+    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v')
+    uses: OutsourceTracker/OutsourceTracker.Actions/.github/workflows/publish-myget.yml@master  # Use a tag
+    with:
+      dotnet-version: '10.0.x'
+      project-path: 'src/OutsourceTracker.Common.csproj'
+      gitversion-semver: ${{ needs.build.outputs.gitversion-semver }}
+      gitversion-nugetversion: ${{ needs.build.outputs.gitversion-nugetversion }}
+      package-suffix: ''  # Optional; set if needed for pre-releases
+    secrets:
+      myget-api-key: ${{ secrets.MYGET_KEY }}
