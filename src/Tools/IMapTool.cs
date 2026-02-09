@@ -14,7 +14,7 @@ public interface IMapTool
     /// <param name="initlong">The initial longitude to center the map on. Defaults to -122.22538 if not provided.</param>
     /// <param name="additionalArgs">Optional additional arguments for map initialization, such as zoom level or map type.</param>
     /// <returns>A task that represents the asynchronous operation, completing with <c>true</c> if initialization succeeds; otherwise, <c>false</c>.</returns>
-    Task<bool> InitializeMapAsync(double? initLat = 47.23299, double? initlong = -122.22538, params object[] additionalArgs);
+    Task<bool> InitializeMapAsync(double? initLat = 47.23299, double? initlong = -122.22538, object? additionalArgs = null);
 
     /// <summary>
     /// Asynchronously creates a new map marker with the specified properties.
@@ -51,6 +51,7 @@ public interface IMapTool
     /// Asynchronously focuses the map on the specified marker, such as by centering or zooming to it.
     /// </summary>
     /// <param name="markerId">The unique identifier of the marker to focus on.</param>
+    /// <param name="zoomLevel">The zoom level on the marker</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task FocusMapMarker(string markerId);
+    Task FocusMapMarker(string markerId, int? zoomLevel = 10);
 }
