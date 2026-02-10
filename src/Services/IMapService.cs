@@ -1,11 +1,11 @@
-﻿namespace OutsourceTracker.Tools;
+﻿namespace OutsourceTracker.Services;
 
 /// <summary>
 /// Defines a contract for interacting with a mapping tool, such as initializing a map, managing markers,
 /// and focusing on specific locations. Implementations should handle map operations asynchronously
 /// and ensure thread-safety where applicable.
 /// </summary>
-public interface IMapTool
+public interface IMapService
 {
     /// <summary>
     /// Asynchronously initializes the map with optional initial coordinates and additional arguments.
