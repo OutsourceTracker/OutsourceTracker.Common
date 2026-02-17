@@ -1,10 +1,14 @@
-﻿namespace OutsourceTracker.Geolocation;
+﻿using OutsourceTracker.Converters;
+using System.Text.Json.Serialization;
+
+namespace OutsourceTracker.Geolocation;
 
 /// <summary>
 /// Represents a geographic coordinate point with latitude, longitude, and accuracy.
 /// This struct is used in the OutsourceTracker application for storing and managing location data,
 /// particularly for equipment tracking, enabling precise geolocation features such as mapping and proximity calculations.
 /// </summary>
+[JsonConverter(typeof(MapCoordinatesConverter))]
 public struct MapCoordinates
 {
     /// <summary>

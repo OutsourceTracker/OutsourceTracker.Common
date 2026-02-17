@@ -73,7 +73,7 @@ public static class ModelServiceExtensions
                 }
             }
 
-            var modelPropInfo = typeof(TModel).GetProperty(modelProp);
+            var modelPropInfo = typeof(TModel).GetProperties().FirstOrDefault(p => p.Name.Equals(modelProp, StringComparison.OrdinalIgnoreCase));
             if (modelPropInfo == null)
             {
                 continue;
@@ -288,11 +288,38 @@ public static class ModelServiceExtensions
         {
         }
 
-        // Handle collections
+        // Handle collections (enhanced for query string scenarios)
         if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
         {
             var elementType = targetType.GetGenericArguments()[0];
-            if (input is IEnumerable enumerableInput)
+
+            if (input is string strInput && strInput.Contains(',')) // Handle comma-separated query param like "1,2,3"
+            {
+                var items = strInput.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                var listType = typeof(List<>).MakeGenericType(elementType);
+                var list = (IList)Activator.CreateInstance(listType)!;
+                bool allConverted = true;
+
+                foreach (var item in items)
+                {
+                    if (TryConvert(item, elementType, out var convItem))
+                    {
+                        list.Add(convItem);
+                    }
+                    else
+                    {
+                        allConverted = false;
+                        break;
+                    }
+                }
+
+                if (allConverted)
+                {
+                    result = list;
+                    return true;
+                }
+            }
+            else if (input is IEnumerable enumerableInput) // Handle repeated query params like ?val=1&val=2 or direct arrays
             {
                 var listType = typeof(List<>).MakeGenericType(elementType);
                 var list = (IList)Activator.CreateInstance(listType)!;

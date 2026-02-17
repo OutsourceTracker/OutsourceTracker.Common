@@ -1,6 +1,4 @@
-﻿using OutsourceTracker.Data;
-
-namespace OutsourceTracker.Services.ModelService;
+﻿namespace OutsourceTracker.Services.ModelService;
 
 /// <summary>
 /// Defines a generic query service interface for retrieving data models in the OutsourceTracker application.
@@ -8,9 +6,9 @@ namespace OutsourceTracker.Services.ModelService;
 /// based on optional search criteria, supporting efficient data access and retrieval operations in the backend API.
 /// </summary>
 /// <typeparam name="TID">The type of the identifier for the data model (e.g., int, Guid).</typeparam>
-/// <typeparam name="TModel">The type of the data model, which must implement <see cref="IDataModel{TID}"/>.</typeparam>
+/// <typeparam name="TModel">The type of the data model, which must implement <see cref="IServiceModel{TID}"/>.</typeparam>
 /// <typeparam name="TSearchOptions">The type of the search options used to filter or parameterize the search query.</typeparam>
-public interface IModelQueryService<TID, TModel, TSearchOptions> where TModel : IDataModel<TID> where TID : struct
+public interface IModelLookupService<TID, TModel, TSearchOptions> where TModel : IServiceModel<TID> where TID : struct
 {
     /// <summary>
     /// Asynchronously retrieves a single data model by its unique identifier.
@@ -29,3 +27,20 @@ public interface IModelQueryService<TID, TModel, TSearchOptions> where TModel : 
     /// <returns>An asynchronous enumerable sequence of matching data models.</returns>
     IAsyncEnumerable<TModel> Search(TSearchOptions? searchOptions = default, CancellationToken cancellationToken = default);
 }
+
+/// <summary>
+/// Defines a generic query service interface for retrieving data models in the OutsourceTracker application.
+/// This interface provides asynchronous methods for fetching individual models by ID and searching for multiple models
+/// based on optional search criteria, supporting efficient data access and retrieval operations in the backend API.
+/// </summary>
+/// <typeparam name="TModel">The type of the data model, which must implement <see cref="IServiceModel"/>.</typeparam>
+/// <typeparam name="TSearchOptions">The type of the search options used to filter or parameterize the search query.</typeparam>
+public interface IModelLookupService<TModel, TSearchOptions> : IModelLookupService<Guid, TModel, TSearchOptions> where TModel : IServiceModel<Guid> { }
+
+/// <summary>
+/// Defines a generic query service interface for retrieving data models in the OutsourceTracker application.
+/// This interface provides asynchronous methods for fetching individual models by ID and searching for multiple models
+/// based on optional search criteria, supporting efficient data access and retrieval operations in the backend API.
+/// </summary>
+/// <typeparam name="TModel">The type of the data model, which must implement <see cref="IServiceModel"/>.</typeparam>
+public interface IModelLookupService<TModel> : IModelLookupService<TModel, object> where TModel: IServiceModel<Guid> { }
