@@ -187,7 +187,7 @@ public static class ModelServiceExtensions
                 continue;
             }
 
-            var modelProp = modelType.GetProperty(kvp.Key);
+            var modelProp = modelType.GetProperties(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault(p => p.Name.Equals(kvp.Key, StringComparison.OrdinalIgnoreCase));
             if (modelProp == null || !modelProp.CanWrite)
             {
                 continue;
