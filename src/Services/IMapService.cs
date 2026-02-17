@@ -54,4 +54,9 @@ public interface IMapService
     /// <param name="zoomLevel">The zoom level on the marker</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     Task FocusMapMarker(string markerId, int? zoomLevel = 10);
+
+    /// <summary>
+    /// Asynchronously deletes all map markers.
+    /// </summary>
+    Task ClearMapMarkers();
 }
