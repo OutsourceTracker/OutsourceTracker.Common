@@ -1,9 +1,9 @@
-﻿using OutsourceTracker.Converters;
+﻿using OutsourceTracker.Geolocation.Converters;
 using System.Text.Json.Serialization;
 
 namespace OutsourceTracker.Geolocation;
 
-public interface ITrackableEntity
+public interface ITrackableEntity<TID> where TID : struct
 {
     /// <summary>
     /// Gets the optional identifier (usually a username, account short name, or external reference)
@@ -19,6 +19,21 @@ public interface ITrackableEntity
     /// <summary>
     /// Gets the optional geographic location (latitude/longitude) where the equipment was last reported.
     /// </summary>
-    [JsonConverter(typeof(NullableMapCoordinatesConverter))]
-    MapCoordinates? Location { get; set; }
+    [JsonConverter(typeof(NullableVector2JsonConverter))]
+    Vector2? Location { get; set; }
+
+    /// <summary>
+    /// Gets the optional accuracy of the reported location in meters, indicating the radius of uncertainty around the location point.
+    /// </summary>
+    double? LocationAccuracy { get; set; }
+
+    /// <summary>
+    /// Gets the optional identifier of the zone or area (e.g., a geofence or location group) where the equipment was last reported.
+    /// </summary>
+    TID? ZoneId { get; set; }
+
+    /// <summary>
+    /// Gets the optional name of the zone or area (e.g., a geofence or location group) where the equipment was last reported.
+    /// </summary>
+    string? ZoneName { get; set; }
 }

@@ -10,7 +10,7 @@ namespace OutsourceTracker.Equipment;
 /// by linking equipment to accounts and recording state changes over time.
 /// </summary>
 /// <typeparam name="TID">The type of the identifier inherited from <see cref="IServiceModel{TID}"/> (e.g., int, Guid).</typeparam>
-public interface IEquipment<TID> : IServiceModel<TID>, ITrackableEntity where TID : struct
+public interface IEquipment<TID> : IServiceModel<TID>, ITrackableEntity<TID> where TID : struct
 {
     /// <summary>
     /// Gets the descriptive name of the equipment item.
