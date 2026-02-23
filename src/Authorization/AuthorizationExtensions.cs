@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Text.Json;
 
 namespace OutsourceTracker.Authorization;
 
@@ -20,8 +21,29 @@ public static class AuthorizationExtensions
         ArgumentNullException.ThrowIfNull(predicate);
 
         return principal.Claims
-            .Where(c => string.Equals(c.Type, claimType, StringComparison.OrdinalIgnoreCase))
-            .Any(c => predicate(c.Value));
+            .Where(c => string.Equals(c.Type, claimType, StringComparison.OrdinalIgnoreCase)
+                     && !string.IsNullOrWhiteSpace(c.Value))
+            .SelectMany(c =>
+            {
+                var value = c.Value!.Trim();
+
+                if (value.StartsWith('[') && value.EndsWith(']'))
+                {
+                    try
+                    {
+                        var array = JsonSerializer.Deserialize<string[]>(value);
+                        return array ?? Enumerable.Empty<string>();
+                    }
+                    catch (JsonException)
+                    {
+                        // Malformed JSON → treat as single value
+                        return [value];
+                    }
+                }
+
+                return [value];
+            })
+            .Any(c => predicate(c));
     }
 
     public static bool HasRolePrefix(this ClaimsPrincipal principal, string prefix)
