@@ -7,7 +7,7 @@ public static class AuthorizationExtensions
 {
     public static bool IsInRole(this ClaimsPrincipal principal, ApplicationRole role) => principal.HasRole(role.Permission);
 
-    public static bool HasRole(this ClaimsPrincipal principal, string role) => principal.HasClaim(ClaimTypes.Role, value => string.Equals(value, role, StringComparison.OrdinalIgnoreCase));
+    public static bool HasRole(this ClaimsPrincipal principal, string role) => principal.HasClaim(ApplicationRole.CLAIM_TYPE, value => string.Equals(value, role, StringComparison.OrdinalIgnoreCase));
 
     public static IEnumerable<ApplicationRole> GetUserRoles(this ClaimsPrincipal principal)
     {
@@ -54,7 +54,7 @@ public static class AuthorizationExtensions
         if (string.IsNullOrWhiteSpace(prefix))
             return false;
 
-        return principal.HasClaim(ClaimTypes.Role,
+        return principal.HasClaim(ApplicationRole.CLAIM_TYPE,
             value => value.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
     }
 }

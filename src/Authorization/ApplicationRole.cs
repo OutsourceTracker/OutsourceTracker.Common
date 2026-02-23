@@ -14,6 +14,8 @@ public readonly struct ApplicationRole
         Permission = permission;
     }
 
+
+    public const string CLAIM_TYPE = "roles";
     public static ApplicationRole TrailerViewer { get; } = new ApplicationRole("Trailer Viewer", "Trailers.Read");
     public static ApplicationRole TrailerAdmin { get; } = new ApplicationRole("Trailer Admin", "Trailers.Write");
     public static ApplicationRole TrailerSpotter { get; } = new ApplicationRole("Trailer Spotter", "Trailers.UpdateLocation");
