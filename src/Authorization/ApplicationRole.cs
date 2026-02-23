@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Security.Claims;
 
 namespace OutsourceTracker.Authorization;
 
@@ -20,7 +19,7 @@ public readonly struct ApplicationRole
     public static ApplicationRole TrailerSpotter { get; } = new ApplicationRole("Trailer Spotter", "Trailers.UpdateLocation");
     public static ApplicationRole ZoneViewer { get; } = new ApplicationRole("Zone Viewer", "Zones.Read");
     public static ApplicationRole ZoneAdmin { get; } = new ApplicationRole("Zone Admin", "Zones.Write");
-
+    public static IEnumerable<ApplicationRole> Roles() => RoleCollection.Values;
     private static IReadOnlyDictionary<string, ApplicationRole> RoleCollection { get; }
 
     static ApplicationRole()
@@ -38,16 +37,5 @@ public readonly struct ApplicationRole
         }
 
         RoleCollection = roles.AsReadOnly();
-    }
-
-    public static IEnumerable<ApplicationRole> GetUserRoles(ClaimsPrincipal claimsPrincipal)
-    {
-        foreach (var role in RoleCollection)
-        {
-            if (claimsPrincipal.IsInRole(role.Key))
-            {
-                yield return role.Value;
-            }
-        }
     }
 }

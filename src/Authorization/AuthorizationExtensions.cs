@@ -5,14 +5,17 @@ namespace OutsourceTracker.Authorization;
 
 public static class AuthorizationExtensions
 {
-    public static bool IsInRole(this ClaimsPrincipal principal, ApplicationRole role) => principal.IsInRole(role.Permission);
+    public static bool IsInRole(this ClaimsPrincipal principal, ApplicationRole role) => principal.HasRole(role.Permission);
+
+    public static bool HasRole(this ClaimsPrincipal principal, string role) => principal.HasClaim(ClaimTypes.Role, value => string.Equals(value, role, StringComparison.OrdinalIgnoreCase));
 
     public static IEnumerable<ApplicationRole> GetUserRoles(this ClaimsPrincipal principal)
     {
         if (principal?.Identity?.IsAuthenticated != true)
             return Enumerable.Empty<ApplicationRole>();
 
-        return ApplicationRole.GetUserRoles(principal);
+        return ApplicationRole.Roles()
+            .Where(principal.IsInRole);
     }
 
     public static bool HasClaim(this ClaimsPrincipal principal, string claimType, Predicate<string> predicate)
