@@ -12,9 +12,10 @@ public interface IModelCreateService<TID, TModel, TReturn> where TID : struct wh
     /// <summary>
     /// Asynchronously creates a new data model instance.
     /// </summary>
+    /// <param name="model">Model used to create the data object</param>
     /// <param name="cancellationToken">An optional cancellation token to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation, containing the identifier of the newly created model, or null if creation failed.</returns>
-    Task<TReturn> Create(CancellationToken cancellationToken = default);
+    Task<TReturn> Create(TModel? model = default, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
