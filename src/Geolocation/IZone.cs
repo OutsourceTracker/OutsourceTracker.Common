@@ -1,20 +1,14 @@
-﻿namespace OutsourceTracker.Geolocation;
+﻿using OutsourceTracker.Services.ModelService;
+
+namespace OutsourceTracker.Geolocation;
 
 /// <summary>
 /// Defines a geographic or logical zone that can contain points (e.g. trailers, tractors, drop-off locations).
 /// Zones are identified by a generic struct ID and defined by a polygonal boundary.
 /// </summary>
 /// <typeparam name="TID">The type of the zone identifier (e.g. <see cref="int"/>, <see cref="Guid"/>, <see cref="long"/>).</typeparam>
-public interface IZone<TID> where TID : struct
+public interface IZone<TID> : IServiceModel<TID> where TID : struct
 {
-    /// <summary>
-    /// Gets the unique identifier of the zone.
-    /// </summary>
-    /// <remarks>
-    /// This is typically the primary key in the database.
-    /// </remarks>
-    TID Id { get; }
-
     /// <summary>
     /// Gets the human-readable name of the zone (e.g. "Main Yard", "Customer A Drop Zone", "Service Area North").
     /// </summary>
