@@ -1,4 +1,5 @@
-﻿using OutsourceTracker.Services.ModelService;
+﻿using OutsourceTracker.Converters;
+using OutsourceTracker.Services.ModelService;
 
 namespace OutsourceTracker.Geolocation;
 
@@ -10,13 +11,37 @@ namespace OutsourceTracker.Geolocation;
 public interface IZone<TID> : IServiceModel<TID> where TID : struct
 {
     /// <summary>
-    /// Gets the human-readable name of the zone (e.g. "Main Yard", "Customer A Drop Zone", "Service Area North").
+    /// Gets the human-readable code of the zone (e.g. "SU2WA", "WIYA02", "SURWA").
     /// </summary>
     /// <remarks>
     /// Used for display in UI tables, dropdowns, and map labels.
     /// Should be unique within the context of the application or tenant.
     /// </remarks>
-    string Name { get; }
+    string ShortCode { get; }
+
+    /// <summary>
+    /// Gets the human-readable name of the zone (e.g. "J.B. Hunt | Tractor Shop", "WinCo Foods DC - Yakima, WA", "J.B. Hunt | Trailer Shop")
+    /// </summary>
+    string FullName { get; }
+
+    /// <summary>
+    /// Gets the collection of entry points represented as two-dimensional vectors.
+    /// </summary>
+    ICollection<Vector2> EntryPoints { get; }
+
+    /// <summary>
+    /// Gets the collection of exit points represented as two-dimensional vectors.
+    /// </summary>
+    /// <remarks>The collection contains the coordinates of all defined exit points. The order of the points
+    /// in the collection is not guaranteed.</remarks>
+    ICollection<Vector2> ExitPoints { get; }
+
+    /// <summary>
+    /// Gets the collection of dock points represented as two-dimensional vectors.
+    /// </summary>
+    /// <remarks>The collection contains the coordinates of all defined dock points. The order of the points
+    /// in the collection is not guaranteed.</remarks>
+    ICollection<Vector2> DockPoints { get; }
 
     /// <summary>
     /// Gets the polygonal boundary that defines the zone.
