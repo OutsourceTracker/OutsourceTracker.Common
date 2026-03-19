@@ -24,7 +24,7 @@ public interface IModelUpdateService<TID, TModel, TUpdateRequest, TReturn> where
 /// Defines a generic update service interface for updating data models.
 /// This interface provides asynchronous methods for updating data models,
 /// </summary>
-/// <typeparam name="TModel">The type of the data model, which must implement <see cref="IServiceModel"/>.</typeparam>
+/// <typeparam name="TModel">The type of the data model, which must implement <see cref="IServiceModel{TID}"/>.</typeparam>
 /// <typeparam name="TUpdateRequest">The type of the request object used for update operations, containing the data to apply.</typeparam>
 /// <typeparam name="TReturn">The type of the result returned by the update operation, which can be the updated model, a status object, or any relevant data.</typeparam>
 public interface IModelUpdateService<TModel, TUpdateRequest, TReturn> : IModelUpdateService<Guid, TModel, TUpdateRequest, TReturn> where TModel : IServiceModel<Guid> { }

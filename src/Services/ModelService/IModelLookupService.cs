@@ -33,7 +33,7 @@ public interface IModelLookupService<TID, TModel, TSearchOptions> where TModel :
 /// This interface provides asynchronous methods for fetching individual models by ID and searching for multiple models
 /// based on optional search criteria, supporting efficient data access and retrieval operations in the backend API.
 /// </summary>
-/// <typeparam name="TModel">The type of the data model, which must implement <see cref="IServiceModel"/>.</typeparam>
+/// <typeparam name="TModel">The type of the data model, which must implement <see cref="IServiceModel{TID}"/>.</typeparam>
 /// <typeparam name="TSearchOptions">The type of the search options used to filter or parameterize the search query.</typeparam>
 public interface IModelLookupService<TModel, TSearchOptions> : IModelLookupService<Guid, TModel, TSearchOptions> where TModel : IServiceModel<Guid> { }
 
@@ -42,5 +42,5 @@ public interface IModelLookupService<TModel, TSearchOptions> : IModelLookupServi
 /// This interface provides asynchronous methods for fetching individual models by ID and searching for multiple models
 /// based on optional search criteria, supporting efficient data access and retrieval operations in the backend API.
 /// </summary>
-/// <typeparam name="TModel">The type of the data model, which must implement <see cref="IServiceModel"/>.</typeparam>
+/// <typeparam name="TModel">The type of the data model, which must implement <see cref="IServiceModel{TID}"/>.</typeparam>
 public interface IModelLookupService<TModel> : IModelLookupService<TModel, object> where TModel: IServiceModel<Guid> { }
