@@ -25,3 +25,10 @@ public interface IModelCreateService<TID, TModel, TReturn> where TID : struct wh
 /// <typeparam name="TModel">The type of the data model, which must implement <see cref="IServiceModel{Guid}"/>.</typeparam>
 /// <typeparam name="TReturn">The type of the result returned by the create operation, which can be the created model, a status object, or any relevant data.</typeparam>
 public interface IModelCreateService<TModel, TReturn> : IModelCreateService<Guid, TModel, TReturn> where TModel : IServiceModel<Guid> { }
+
+/// <summary>
+/// Defines a generic create service interface for creating data models.
+/// This interface provides asynchronous methods for creating data models.
+/// </summary>
+/// <typeparam name="TModel">The type of the data model, which must implement <see cref="IServiceModel{Guid}"/>.</typeparam>
+public interface IModelCreateService<TModel> : IModelCreateService<TModel, TModel?> where TModel : IServiceModel<Guid> { }
