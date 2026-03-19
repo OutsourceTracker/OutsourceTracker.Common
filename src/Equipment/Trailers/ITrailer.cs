@@ -12,15 +12,15 @@ public interface ITrailer<TID> : IEquipment<TID> where TID : struct
     /// <summary>
     /// Gets the prefix used for the trailer's identifier or code (e.g., a shorthand or category prefix).
     /// </summary>
-    string Prefix { get; }
+    string Prefix { get; set; }
 
     /// <summary>
     /// Gets the full name or descriptive title of the trailer.
     /// </summary>
-    string FullName { get; }
+    string FullName { get; set; }
 
     /// <summary>
     /// Gets the type of the trailer, categorizing it based on configuration and use (e.g., Van, Reefer).
     /// </summary>
-    TrailerType Type { get; }
+    TrailerType Type { get; set; }
 }

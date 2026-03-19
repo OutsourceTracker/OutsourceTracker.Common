@@ -15,15 +15,15 @@ public interface IEquipment<TID> : IServiceModel<TID>, ITrackableEntity<TID> whe
     /// <summary>
     /// Gets the descriptive name of the equipment item.
     /// </summary>
-    string Name { get; }
+    string Name { get; set; }
 
     /// <summary>
     /// Gets the current operational state of the equipment (e.g., Available, InUse, Maintenance, etc.).
     /// </summary>
-    EquipmentState State { get; }
+    EquipmentState State { get; set; }
 
     /// <summary>
     /// Gets the identifier of the <see cref="Accounts.IAccount{TID}"/> that owns or is responsible for this equipment.
     /// </summary>
-    TID? AccountId { get; }
+    TID? AccountId { get; set; }
 }
