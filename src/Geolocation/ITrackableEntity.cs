@@ -9,7 +9,7 @@ public interface ITrackableEntity<TID> where TID : struct
     /// Gets the optional identifier (usually a username, account short name, or external reference)
     /// of the person or system that last reported the equipment's location.
     /// </summary>
-    string? LocatedBy { get; set; }
+    string? LocatedByName { get; set; }
 
     /// <summary>
     /// Gets the optional timestamp when the equipment's location was last recorded.

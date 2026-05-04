@@ -26,7 +26,9 @@ public class TrailerModel : ITrailer<Guid>
 
     public Guid? AccountId { get; set; }
 
-    public string? LocatedBy { get; set; }
+    public Guid? LocatedById { get; set; }
+
+    public string? LocatedByName { get; set; }
 
     public DateTimeOffset? LocatedDate { get; set; }
 
