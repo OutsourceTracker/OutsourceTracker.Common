@@ -6,7 +6,7 @@
 /// which is useful for database operations, tracking, and entity management in the OutsourceTracker application.
 /// </summary>
 /// <typeparam name="TID">The type of the identifier (e.g., int, Guid).</typeparam>
-public interface IServiceModel<TID> where TID : struct
+public interface IServiceModel<TID> : IEquatable<TID> where TID : struct
 {
     /// <summary>
     /// Gets the unique identifier for the data model instance.

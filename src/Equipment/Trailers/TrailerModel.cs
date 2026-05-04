@@ -37,4 +37,6 @@ public class TrailerModel : ITrailer<Guid>
     public Guid? ZoneId { get; set; }
 
     public string? ZoneName { get; set; }
+
+    public bool Equals(Guid other) => Id.Equals(other);
 }
