@@ -21,4 +21,6 @@ public class OrganizationalUnit : IOrganizationalUnit<Guid>
     public DateTimeOffset CreatedOn { get; set; } = default!;
 
     public bool Equals(Guid other) => Id.Equals(other);
+
+    public override string ToString() => ShortCode;
 }

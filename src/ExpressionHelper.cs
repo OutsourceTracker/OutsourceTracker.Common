@@ -122,4 +122,16 @@ public static class ExpressionHelper
 
         return Convert.ChangeType(value, targetType);
     }
+
+    public static string GetPropertyName<TEntity, TProperty>(Expression<Func<TEntity, TProperty>> selector)
+    {
+        ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+
+        if (selector.Body is MemberExpression member)
+        {
+            return member.Member.Name;
+        }
+
+        throw new ArgumentException("Selector must be a simple property access expression (e.g. x => x.Property)", nameof(selector));
+    }
 }

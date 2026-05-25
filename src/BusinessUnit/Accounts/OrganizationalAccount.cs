@@ -14,9 +14,20 @@ public class OrganizationalAccount : IOrganizationAccount<Guid>
 
     public string Name { get; set; } = default!;
 
+    [RegularExpression(@"^\d{6}$", ErrorMessage = "Cost Center must be in the format XXXXXX")]
+    public string? CostCenter { get; set; }
+
+    [EmailAddress(ErrorMessage = "Invalid email address format")]
+    public string? GroupEmail { get; set; }
+
+    public string? Address { get; set; }
+
     public Guid OUID { get; set; } = default;
 
     public DateTimeOffset CreatedOn { get; set; } = default;
+    
 
     public bool Equals(Guid other) => Id.Equals(other);
+
+    public override string ToString() => $"{Name} [{ShortCode}]";
 }
