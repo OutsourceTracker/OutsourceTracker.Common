@@ -26,6 +26,12 @@ public class TrailerModel : ITrailer<Guid>
 
     public Guid? AccountId { get; set; }
 
+    /// <summary>
+    /// Display fields populated by the backend for convenience in lists.
+    /// </summary>
+    public string? AccountShortCode { get; set; }
+    public string? AccountName { get; set; }
+
     public Guid? LocatedById { get; set; }
 
     public string? LocatedByName { get; set; }

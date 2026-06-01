@@ -28,6 +28,32 @@ public readonly struct Polygon : IEquatable<Polygon>
     public bool IsValid => VertexCount >= 3 && !HasDuplicateConsecutivePoints();
 
     /// <summary>
+    /// Returns a simple center point for the polygon by averaging all vertex coordinates.
+    /// This provides a reasonable "center of the zone" for use cases like equipment spotting.
+    /// For an empty polygon, returns Vector2.Zero.
+    /// </summary>
+    public Vector2 Center
+    {
+        get
+        {
+            var span = Points.Span;
+            if (span.Length == 0)
+                return Vector2.Zero;
+
+            double sumX = 0;
+            double sumY = 0;
+
+            for (int i = 0; i < span.Length; i++)
+            {
+                sumX += span[i].X;
+                sumY += span[i].Y;
+            }
+
+            return new Vector2(sumX / span.Length, sumY / span.Length);
+        }
+    }
+
+    /// <summary>
     /// Creates a new Polygon from a collection of Vector2 points.
     /// </summary>
     public Polygon(IEnumerable<Vector2> points)

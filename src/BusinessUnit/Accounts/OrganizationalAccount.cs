@@ -29,5 +29,7 @@ public class OrganizationalAccount : IOrganizationAccount<Guid>
 
     public bool Equals(Guid other) => Id.Equals(other);
 
-    public override string ToString() => $"{Name} [{ShortCode}]";
+    public override string ToString() => string.IsNullOrWhiteSpace(ShortCode) 
+        ? Name 
+        : $"{ShortCode} - {Name}";
 }

@@ -44,6 +44,12 @@ public interface IZone<TID> : IServiceModel<TID> where TID : struct
     ICollection<Vector2> DockPoints { get; }
 
     /// <summary>
+    /// Gets a collection of preferred trailer parking / spotting locations (pools) within the zone.
+    /// These are used as default/suggested locations when the zone is selected for equipment updates.
+    /// </summary>
+    ICollection<Vector2> TrailerPools { get; }
+
+    /// <summary>
     /// Gets the polygonal boundary that defines the zone.
     /// </summary>
     /// <remarks>

@@ -181,10 +181,6 @@ public static class ModelServiceExtensions
         foreach (var kvp in keyValuePairs)
         {
             var value = kvp.Value;
-            if (value == null)
-            {
-                continue;
-            }
 
             var modelProp = modelType.GetProperties(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault(p => p.Name.Equals(kvp.Key, StringComparison.OrdinalIgnoreCase));
             if (modelProp == null || !modelProp.CanWrite)
@@ -212,8 +208,41 @@ public static class ModelServiceExtensions
     private static bool TryConvert(object? input, Type targetType, out object? result)
     {
         result = null;
+
+        // Handle JsonElement coming from System.Text.Json deserialization
+        if (input is System.Text.Json.JsonElement jsonElement)
+        {
+            if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.Null)
+            {
+                if (!targetType.IsValueType || Nullable.GetUnderlyingType(targetType) != null)
+                {
+                    result = null;
+                    return true;
+                }
+                return false;
+            }
+
+            // Convert JsonElement to its underlying .NET value and recurse
+            object? underlyingValue = jsonElement.ValueKind switch
+            {
+                System.Text.Json.JsonValueKind.String => jsonElement.GetString(),
+                System.Text.Json.JsonValueKind.Number => jsonElement.TryGetInt64(out var l) ? l : (object?)jsonElement.GetDouble(),
+                System.Text.Json.JsonValueKind.True => true,
+                System.Text.Json.JsonValueKind.False => false,
+                _ => jsonElement.ToString()
+            };
+
+            return TryConvert(underlyingValue, targetType, out result);
+        }
+
         if (input == null)
         {
+            // Allow setting nullable properties to null (important for clearing FKs like AccountId)
+            if (!targetType.IsValueType || Nullable.GetUnderlyingType(targetType) != null)
+            {
+                result = null;
+                return true;
+            }
             return false;
         }
 
@@ -281,6 +310,47 @@ public static class ModelServiceExtensions
             {
                 result = new DateTimeOffset(dateOnlyOffset.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
                 return true;
+            }
+
+            // Handle Guid / Guid? from string (common when coming from JSON payloads)
+            if (input is string str && (targetType == typeof(Guid) || targetType == typeof(Guid?)))
+            {
+                if (Guid.TryParse(str, out var guid))
+                {
+                    result = guid;
+                    return true;
+                }
+                return false;
+            }
+
+            // Handle enums (especially from numeric JSON values like "Type":1 or "State":2)
+            if (targetType.IsEnum)
+            {
+                try
+                {
+                    // From numeric types (after JsonElement unwrapping or direct)
+                    if (input is long l)
+                    {
+                        result = Enum.ToObject(targetType, l);
+                        return true;
+                    }
+                    if (input is int i)
+                    {
+                        result = Enum.ToObject(targetType, i);
+                        return true;
+                    }
+                    if (input is double d)
+                    {
+                        result = Enum.ToObject(targetType, (long)d);
+                        return true;
+                    }
+                    if (input is string s && Enum.TryParse(targetType, s, true, out var enumFromName))
+                    {
+                        result = enumFromName;
+                        return true;
+                    }
+                }
+                catch { }
             }
         }
         catch

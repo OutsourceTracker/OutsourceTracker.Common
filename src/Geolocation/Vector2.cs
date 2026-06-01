@@ -83,6 +83,8 @@ public readonly struct Vector2 : IEquatable<Vector2>
 
     public override int GetHashCode() => HashCode.Combine(X, Y);
 
+    public override string ToString() => $"{X}, {Y}";
+
     #endregion
 
     #region Operators
